@@ -50,7 +50,7 @@ def parse_expression(block, start_index):
     name = ''
     while pointer < len(block):
         symbol = block[pointer]
-        if symbol == '\\':
+        if symbol == ';':
             break
         name += symbol
         pointer += 1
@@ -73,7 +73,7 @@ def parse_block_body(block) -> dict[str, list]:
     pointer = 0
     while pointer < len(block):
         symbol = block[pointer]
-        if symbol == '/':
+        if symbol == ';':
             parsed_operator, category, operator_end_index = parse_expression(block, pointer + 1)
             analyzed_block_body[category].append(parsed_operator)
             pointer = operator_end_index
@@ -82,9 +82,9 @@ def parse_block_body(block) -> dict[str, list]:
     return analyzed_block_body
 
 
-def parse(html: str) -> str:
-    html = delete_all_spaces(html)
-    template_start_index, template_stop_index = get_index_start_end_block(html, 'sakura_start{%', '%}sakura_end')
+def parse(html: str, bounds) -> str:
+    template_start_index, template_stop_index = get_index_start_end_block(html, bounds[0], bounds[1])
     template_body = html[template_start_index:template_stop_index]
+    template_body = delete_all_spaces(template_body)
     analyzed_template_body = parse_block_body(template_body)
-    return analyzed_template_body
+    return analyzed_template_body, template_start_index, template_stop_index

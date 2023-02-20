@@ -1,5 +1,5 @@
-def add(one: int, two: int) -> str:
-    return str(one + two)
+def add(one: str) -> str:
+    return str(one)
 
 
 operators = {'add': add}

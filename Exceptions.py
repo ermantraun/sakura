@@ -2,6 +2,10 @@ class UnknownName(Exception):
     pass
 
 
+class NotFoundVar(Exception):
+    pass
+
+
 class NotFoundBoundary(Exception):
     pass
 
