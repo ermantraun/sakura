@@ -1,15 +1,17 @@
 from Exceptions import (NotFoundNameBoundary, NotFoundHeadBoundary, UnknownName,
-                        NotFoundBodyBoundary)
-from operators import operators
+                        NotFoundBodyBoundary, UnknownSymbol)
+from functions import functions
+
+OPERATOR_FRAME = ';'
 
 
 def delete_all_spaces(symbols: str) -> str:
     return ''.join(symbols.split())
 
 
-def get_index_start_end_block(string: str, start_block: str, end_block: str) -> list[int, int]:
-    index_block_start = string.find(start_block) + len(start_block)
-    index_block_end = string.find(end_block)
+def get_index_start_end_block(string: str, search_start: int, start_block: str, end_block: str) -> list[int, int]:
+    index_block_start = string.find(start_block, search_start) + len(start_block)
+    index_block_end = string.find(end_block, index_block_start)
     return index_block_start, index_block_end
 
 
@@ -50,16 +52,16 @@ def parse_expression(block, start_index):
     name = ''
     while pointer < len(block):
         symbol = block[pointer]
-        if symbol == ';':
+        if symbol == OPERATOR_FRAME:
             break
         name += symbol
         pointer += 1
     else:
-        raise NotFoundNameBoundary('End of expression not found, maybe you forgot to add "\\"')
+        raise NotFoundNameBoundary('End of expression not found, maybe you forgot to add ;')
     expression.append(name)
     pointer, head = parse_expression_head(block, pointer + 2)
     expression.append(head)
-    if name not in operators:
+    if name not in functions:
         if name != 'for':
             raise UnknownName('An unknown operator or cycle is found')
         pointer, body = parse_cycles_body(block, pointer + 2)
@@ -73,18 +75,22 @@ def parse_block_body(block) -> dict[str, list]:
     pointer = 0
     while pointer < len(block):
         symbol = block[pointer]
-        if symbol == ';':
+        if symbol == OPERATOR_FRAME:
             parsed_operator, category, operator_end_index = parse_expression(block, pointer + 1)
             analyzed_block_body[category].append(parsed_operator)
-            pointer = operator_end_index
+            pointer = operator_end_index + 1
         else:
+            if symbol not in (' ', '\n'):
+                raise UnknownSymbol('Unknown symbol: ' + symbol)
             pointer += 1
     return analyzed_block_body
 
 
 def parse(html: str, bounds) -> str:
-    template_start_index, template_stop_index = get_index_start_end_block(html, bounds[0], bounds[1])
+    template_start_index, template_stop_index = get_index_start_end_block(html, 0, bounds[0], bounds[1])
+    if -1 in (template_start_index, template_stop_index):
+        return None, None, None, True
     template_body = html[template_start_index:template_stop_index]
     template_body = delete_all_spaces(template_body)
     analyzed_template_body = parse_block_body(template_body)
-    return analyzed_template_body, template_start_index, template_stop_index
+    return analyzed_template_body, template_start_index, template_stop_index, False

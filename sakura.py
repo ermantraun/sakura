@@ -9,9 +9,13 @@ def put_render(html, render, template_start, template_stop, bounds_len):
 def sakura(html: str, vars_) -> str:
     bounds = ['{%', '%}']
     bounds_len = len(bounds[0])
-    parsed, template_start, template_stop = parse(html, bounds)
-    render = renderer(parsed, vars_)
-    result = put_render(html, render, template_start, template_stop, bounds_len)
+    result = html
+    while True:
+        parsed, template_start, template_stop, all_templates_processed = parse(result, bounds)
+        if all_templates_processed:
+            break
+        render = renderer(parsed, vars_)
+        result = put_render(result, render, template_start, template_stop, bounds_len)
     return result
 
 
