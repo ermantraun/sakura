@@ -1,3 +1,4 @@
+<img src='https://i.ibb.co/HpYSnXb/IMG-5169.jpg'></img>
 <h1><font color="pink">Sakura: template engineer</font></h1>
 <h3>The templating tool is designed for training purposes. Performance was not the main goal of the author. <p>The substrings for the beginning and end of the pattern can be set in the "bounds" variable in sakura.py. The default bounds are: start - {% code %} - stop</p><p>An example of a template: {% ;for;(works, 1, 10, 1) {
                                                 ;print;(works, work)
